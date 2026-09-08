@@ -1,4 +1,5 @@
-﻿using confrence_booking.Models;
+﻿using confrence_booking.DTOs;
+using confrence_booking.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

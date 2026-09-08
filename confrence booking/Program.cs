@@ -1,5 +1,6 @@
-﻿
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models; // Add this for OpenApiOperation etc.
+using Swashbuckle.AspNetCore.SwaggerGen; // Add this for SwaggerGenOptions and IOperationFilter
 
 namespace confrence_booking
 {
@@ -21,7 +22,10 @@ namespace confrence_booking
                            .AllowAnyHeader();
                 });
             });
-
+            //builder.Services.AddSwaggerGen(options =>
+            //{
+            //    options.OperationFilter<AcceptLanguageHeaderFilter>(); // FIX: Use OperationFilter<T>() instead of AddOperationFilter<T/>
+            //});
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

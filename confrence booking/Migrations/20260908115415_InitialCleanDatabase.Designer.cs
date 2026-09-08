@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace confrence_booking.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260907103759_intialCreate")]
-    partial class intialCreate
+    [Migration("20260908115415_InitialCleanDatabase")]
+    partial class InitialCleanDatabase
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -47,6 +47,22 @@ namespace confrence_booking.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("GalleryItems");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            ImageUrl = "/uploads/gallery/opening.jpg",
+                            TitleAr = "افتتاح المؤتمر السابق",
+                            TitleEn = "Previous Conference Opening"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            ImageUrl = "/uploads/gallery/awards.jpg",
+                            TitleAr = "تكريم الباحثين الفائزين",
+                            TitleEn = "Honoring Winning Researchers"
+                        });
                 });
 
             modelBuilder.Entity("confrence_booking.Models.InvitationVideo", b =>
@@ -72,6 +88,22 @@ namespace confrence_booking.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("InvitationVideos");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            TitleAr = "الفيديو الترويجي للمؤتمر",
+                            TitleEn = "Official Conference Promo Video",
+                            VideoUrl = "https://www.youtube.com/watch?v=example1"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            TitleAr = "دعوة رئيس المؤتمر للباحثين",
+                            TitleEn = "Conference Chair Invitation",
+                            VideoUrl = "https://www.youtube.com/watch?v=example2"
+                        });
                 });
 
             modelBuilder.Entity("confrence_booking.Models.MainTopic", b =>
@@ -101,6 +133,24 @@ namespace confrence_booking.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("MainTopics");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            DescriptionAr = "مناقشة أحدث تقنيات تعلم الآلة والمعالجة اللغوية.",
+                            DescriptionEn = "Discussion on latest ML and NLP advances.",
+                            TitleAr = "الذكاء الاصطناعي وتطبيقاته",
+                            TitleEn = "Artificial Intelligence Applications"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            DescriptionAr = "طرق حماية الأنظمة والتشفير الرقمي.",
+                            DescriptionEn = "Methods for system protection and cryptography.",
+                            TitleAr = "أمن المعلومات والأمن السيبراني",
+                            TitleEn = "Cybersecurity & Information Security"
+                        });
                 });
 
             modelBuilder.Entity("confrence_booking.Models.Partner", b =>
@@ -122,6 +172,20 @@ namespace confrence_booking.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Partners");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            LogoUrl = "/uploads/partners/menofia.png",
+                            Name = "جامعة المنوفية"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            LogoUrl = "/uploads/partners/iti.png",
+                            Name = "معهد تكنولوجيا المعلومات (ITI)"
+                        });
                 });
 
             modelBuilder.Entity("confrence_booking.Models.Speaker", b =>
@@ -155,6 +219,26 @@ namespace confrence_booking.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Speakers");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            ImageUrl = "/uploads/speakers/speaker1.jpg",
+                            NameAr = "د. أحمد علي",
+                            NameEn = "Dr. Ahmed Ali",
+                            TitleAr = "أستاذ علوم الحاسب",
+                            TitleEn = "Computer Science Professor"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            ImageUrl = "/uploads/speakers/speaker2.jpg",
+                            NameAr = "د. سارة إبراهيم",
+                            NameEn = "Dr. Sarah Ibrahim",
+                            TitleAr = "خبيرة هندسة البرمجيات",
+                            TitleEn = "Software Engineering Expert"
+                        });
                 });
 
             modelBuilder.Entity("confrence_booking.Models.Submission", b =>
@@ -165,19 +249,22 @@ namespace confrence_booking.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("College")
+                    b.Property<string>("AbstractText")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("College")
+                        .HasColumnType("int");
 
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("FilePath")
+                    b.Property<string>("FirstName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("FirstName")
+                    b.Property<string>("FullPaperFilePath")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -189,6 +276,10 @@ namespace confrence_booking.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("PaperTitle")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Phone")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -196,12 +287,39 @@ namespace confrence_booking.Migrations
                     b.Property<DateTime>("SubmittedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.ToTable("Submissions");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            AbstractText = "هذا الملخص يوضح كيفية استخدام الخوارزميات الذكية في التشخيص.",
+                            College = 7,
+                            Email = "ali.mohamed@example.com",
+                            FirstName = "علي",
+                            FullPaperFilePath = "/uploads/submissions/paper_1.pdf",
+                            LastName = "محمد",
+                            Level = "Master Student",
+                            PaperTitle = "تطبيقات الذكاء الاصطناعي في الطب",
+                            Phone = "01012345678",
+                            SubmittedAt = new DateTime(2026, 9, 1, 12, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            Id = 2,
+                            AbstractText = "دراسة تحليلية لتطوير الأجهزة الطبية باستخدام الحوسبة السحابية.",
+                            College = 6,
+                            Email = "sara.mahmoud@example.com",
+                            FirstName = "سارة",
+                            FullPaperFilePath = "/uploads/submissions/paper_2.pdf",
+                            LastName = "محمود",
+                            Level = "PhD Candidate",
+                            PaperTitle = "تطوير الأنظمة المدمجة للخدمات الطبية",
+                            Phone = "01187654321",
+                            SubmittedAt = new DateTime(2026, 9, 2, 14, 30, 0, 0, DateTimeKind.Unspecified)
+                        });
                 });
 
             modelBuilder.Entity("confrence_booking.Models.Workshop", b =>
@@ -230,6 +348,24 @@ namespace confrence_booking.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Workshops");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Date = new DateTime(2026, 10, 15, 10, 0, 0, 0, DateTimeKind.Unspecified),
+                            Instructor = "Eng. Mohamed Hassan",
+                            TitleAr = "ورشة عمل: بناء Web API بواسطة .NET 8",
+                            TitleEn = "Workshop: Building Web APIs with .NET 8"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Date = new DateTime(2026, 10, 16, 14, 0, 0, 0, DateTimeKind.Unspecified),
+                            Instructor = "Dr. Mahmoud Khaled",
+                            TitleAr = "ورشة عمل: أمن البيانات والـ Cloud",
+                            TitleEn = "Workshop: Cloud Data Security"
+                        });
                 });
 #pragma warning restore 612, 618
         }
