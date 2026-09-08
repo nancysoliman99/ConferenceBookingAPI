@@ -14,6 +14,7 @@ namespace confrence_booking.Controllers
     [Route("api/[controller]")]
     [ApiController]
     public class SubmissionsController : ControllerBase
+
     {
         private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment _environment;
