@@ -46,74 +46,95 @@ namespace confrence_booking.Controllers
 
             return Ok(colleges);
         }
-       
 
-[HttpGet("export-excel")]
-    public async Task<IActionResult> ExportToExcel()
-    {
-        var submissions = await _context.Submissions.ToListAsync();
 
-        using (var workbook = new XLWorkbook())
+        [HttpGet("export-excel")]
+        public async Task<IActionResult> ExportToExcel()
         {
-            var worksheet = workbook.Worksheets.Add("Submissions");
+            var submissions = await _context.Submissions.ToListAsync();
 
-            // 1. إضافة عناوين الأعمدة (Headers)
-            worksheet.Cell(1, 1).Value = "ID";
-            worksheet.Cell(1, 2).Value = "الاسم الأول";
-            worksheet.Cell(1, 3).Value = "الاسم الثاني";
-            worksheet.Cell(1, 4).Value = "رقم الهاتف";
-            worksheet.Cell(1, 5).Value = "البريد الإلكتروني";
-            worksheet.Cell(1, 6).Value = "الكلية";
-            worksheet.Cell(1, 7).Value = "المستوى الأكاديمي";
-            worksheet.Cell(1, 8).Value = "عنوان البحث";
-            worksheet.Cell(1, 9).Value = "ملخص البحث";
-            worksheet.Cell(1, 10).Value = "رابط الملف";
-            worksheet.Cell(1, 11).Value = "تاريخ التقديم";
+            // جلب الرابط الأساسي للسيرفر ديناميكياً (مثل https://localhost:7029)
+            var baseUrl = $"{Request.Scheme}://{Request.Host}";
 
-            // تنسيق الهيدر (تغميق الخط وتغيير الخلفية)
-            var headerRow = worksheet.Row(1);
-            headerRow.Style.Font.Bold = true;
-            headerRow.Style.Fill.BackgroundColor = XLColor.FromHtml("#1F4E78");
-            headerRow.Style.Font.FontColor = XLColor.White;
-
-            // 2. تعبئة البيانات (Data Rows)
-            int row = 2;
-            foreach (var item in submissions)
+            using (var workbook = new XLWorkbook())
             {
-                worksheet.Cell(row, 1).Value = item.Id;
-                worksheet.Cell(row, 2).Value = item.FirstName;
-                worksheet.Cell(row, 3).Value = item.LastName;
-                worksheet.Cell(row, 4).Value = item.Phone;
-                worksheet.Cell(row, 5).Value = item.Email;
-                worksheet.Cell(row, 6).Value = item.College.ToString();
-                worksheet.Cell(row, 7).Value = item.Level;
-                worksheet.Cell(row, 8).Value = item.PaperTitle;
-                worksheet.Cell(row, 9).Value = item.AbstractText;
-                worksheet.Cell(row, 10).Value = item.FullPaperFilePath;
-                worksheet.Cell(row, 11).Value = item.SubmittedAt.ToString("yyyy-MM-dd HH:mm");
-                row++;
-            }
+                var worksheet = workbook.Worksheets.Add("Submissions");
 
-            // ضبط عرض الأعمدة تلقائياً ليناسب المحتوى
-            worksheet.Columns().AdjustToContents();
+                // 1. عناوين الأعمدة
+                worksheet.Cell(1, 1).Value = "ID";
+                worksheet.Cell(1, 2).Value = "الاسم الأول";
+                worksheet.Cell(1, 3).Value = "الاسم الثاني";
+                worksheet.Cell(1, 4).Value = "رقم الهاتف";
+                worksheet.Cell(1, 5).Value = "البريد الإلكتروني";
+                worksheet.Cell(1, 6).Value = "الكلية";
+                worksheet.Cell(1, 7).Value = "المستوى الأكاديمي";
+                worksheet.Cell(1, 8).Value = "عنوان البحث";
+                worksheet.Cell(1, 9).Value = "ملخص البحث";
+                worksheet.Cell(1, 10).Value = "رابط الملف";
+                worksheet.Cell(1, 11).Value = "تاريخ التقديم";
 
-            // 3. تحويل الملف إلى MemoryStream وإرجاعه للعميل
-            using (var stream = new MemoryStream())
-            {
-                workbook.SaveAs(stream);
-                var content = stream.ToArray();
+                var headerRow = worksheet.Row(1);
+                headerRow.Style.Font.Bold = true;
+                headerRow.Style.Fill.BackgroundColor = XLColor.FromHtml("#1F4E78");
+                headerRow.Style.Font.FontColor = XLColor.White;
 
-                string fileName = $"Submissions_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
-                return File(
-                    content,
-                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                    fileName
-                );
+                // 2. تعبئة البيانات
+                int row = 2;
+                foreach (var item in submissions)
+                {
+                    worksheet.Cell(row, 1).Value = item.Id;
+                    worksheet.Cell(row, 2).Value = item.FirstName;
+                    worksheet.Cell(row, 3).Value = item.LastName;
+                    worksheet.Cell(row, 4).Value = item.Phone;
+                    worksheet.Cell(row, 5).Value = item.Email;
+                    worksheet.Cell(row, 6).Value = item.College.ToString();
+                    worksheet.Cell(row, 7).Value = item.Level;
+                    worksheet.Cell(row, 8).Value = item.PaperTitle;
+                    worksheet.Cell(row, 9).Value = item.AbstractText;
+
+                    // تحويل رابط الملف إلى Hyperlink قابل للضغط
+                    if (!string.IsNullOrEmpty(item.FullPaperFilePath))
+                    {
+                        // ضمان تكوين رابط كامل بدايةً من /
+                        string relativePath = item.FullPaperFilePath.StartsWith("/")
+                            ? item.FullPaperFilePath
+                            : $"/{item.FullPaperFilePath}";
+
+                        string fullUrl = $"{baseUrl}{relativePath}";
+
+                        var cell = worksheet.Cell(row, 10);
+                        cell.Value = "تحميل الملف";
+                        cell.GetHyperlink().ExternalAddress = new Uri(fullUrl);
+                        cell.Style.Font.FontColor = XLColor.Blue;
+                        cell.Style.Font.Underline = XLFontUnderlineValues.Single;
+                    }
+                    else
+                    {
+                        worksheet.Cell(row, 10).Value = "لا يوجد ملف";
+                    }
+
+                    worksheet.Cell(row, 11).Value = item.SubmittedAt.ToString("yyyy-MM-dd HH:mm");
+                    row++;
+                }
+
+                worksheet.Columns().AdjustToContents();
+
+                using (var stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    var content = stream.ToArray();
+
+                    string fileName = $"Submissions_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+                    return File(
+                        content,
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        fileName
+                    );
+                }
             }
         }
-    }
-    // 2. رفع البحث والبيانات
-    [HttpPost]
+        // 2. رفع البحث والبيانات
+        [HttpPost]
         public async Task<IActionResult> Create([FromForm] CreateSubmissionDto dto)
         {
             if (dto.FullPaperFile == null || dto.FullPaperFile.Length == 0)

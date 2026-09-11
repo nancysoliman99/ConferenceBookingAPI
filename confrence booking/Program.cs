@@ -22,12 +22,19 @@ namespace confrence_booking
                            .AllowAnyHeader();
                 });
             });
-            //builder.Services.AddSwaggerGen(options =>
-            //{
-            //    options.OperationFilter<AcceptLanguageHeaderFilter>(); // FIX: Use OperationFilter<T>() instead of AddOperationFilter<T/>
-            //});
+           
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowFrontend",
+                    builder => builder
+                        .WithOrigins("https://mnu-research.vercel.app", "http://localhost:3000")
+                        .AllowAnyMethod()
+                        .AllowAnyHeader());
+            });
+
+            // قبل app.UseAuthorization()
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();

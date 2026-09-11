@@ -12,6 +12,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Speaker> Speakers { get; set; }
     public DbSet<Partner> Partners { get; set; }
     public DbSet<GalleryItem> GalleryItems { get; set; }
+    public DbSet<Registration> Registrations { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
