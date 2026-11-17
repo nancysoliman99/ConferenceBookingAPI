@@ -24,20 +24,23 @@ namespace confrence_booking.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var speakers = await _context.Speakers
-                .Select(s => new SpeakerDto
-                {
-                    Id = s.Id,
-                    Name = CurrentLanguage == "ar" ? s.NameAr : s.NameEn,
-                    Title = CurrentLanguage == "ar" ? s.TitleAr : s.TitleEn,
-                    ImageUrl = s.ImageUrl
-                })
-                .ToListAsync();
+            try
+            {
+                var speakers = await _context.Speakers
+                    .ToListAsync();
 
-            return Ok(speakers);
+                return Ok(speakers);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    message = ex.Message,
+                    inner = ex.InnerException?.Message
+                });
+            }
         }
 
-      
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {

@@ -17,15 +17,11 @@ namespace confrence_booking
                 options.AddPolicy("AllowFrontend", policy =>
                 {
                     policy
-                        .WithOrigins(
-                            "https://mnu-research.vercel.app",
-                            "http://localhost:3000"
-                        )
+                        .AllowAnyOrigin()
                         .AllowAnyMethod()
                         .AllowAnyHeader();
                 });
             });
-
             // Database
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
